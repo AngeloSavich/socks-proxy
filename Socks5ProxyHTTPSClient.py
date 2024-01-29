@@ -47,3 +47,31 @@ proxy_client = Socks5ProxyHTTPSClient('localhost', 49000)
 response = proxy_client.make_request('https://api.example.com/data')
 if response:
     print(response.text)
+
+
+class Socks5ProxyHTTPSClientTemporary:
+    """
+    A class to make HTTPS requests through a SOCKS5 proxy.
+    """
+
+    def __init__(self, proxy_host, proxy_port):
+        """
+        Initializes the client with the given proxy settings.
+        """
+        self.session = requests.Session()
+        self.session.proxies = {
+            'http': f'socks5://{proxy_host}:{proxy_port}',
+            'https': f'socks5://{proxy_host}:{proxy_port}'
+        }
+
+    def make_request(self, url, method='GET', **kwargs):
+        """
+        Makes an HTTPS request through the SOCKS5 proxy.
+        """
+        try:
+            response = self.session.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            print(f"An error occurred: {e}")
+            return None
